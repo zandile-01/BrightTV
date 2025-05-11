@@ -1,0 +1,84 @@
+(
+    SELECT DISTINCT *
+    FROM BRIGHTTV
+    WHERE USERID IS NOT NULL
+      AND age IS NOT NULL
+      AND gender IS NOT NULL
+),
+
+-- Age brackets with all fields
+age_brackets AS (
+    SELECT *,
+        CASE
+            WHEN age BETWEEN 1 AND 13 THEN 'Kids'
+            WHEN age BETWEEN 14 AND 21 THEN 'Teenagers'
+            WHEN age BETWEEN 22 AND 30 THEN 'Young Adults'
+            WHEN age BETWEEN 31 AND 60 THEN 'Adults'
+            ELSE 'Seniors'
+        END AS age_bracket
+    FROM BRIGHTTV
+),
+
+-- Views by channel
+channel_views AS (
+    SELECT
+        channel,
+        COUNT(*) AS total_views
+    FROM BRIGHTTV
+    WHERE channel IS NOT NULL
+    GROUP BY channel
+),
+
+-- Views by province
+province_views AS (
+    SELECT
+        province,
+        COUNT(*) AS total_views
+    FROM BRIGHTTV
+    WHERE channel IS NOT NULL
+    GROUP BY province
+),
+
+-- Viewer count by age bracket
+age_bracket_counts AS (
+    SELECT
+        CASE
+            WHEN age BETWEEN 1 AND 13 THEN 'Kids'
+            WHEN age BETWEEN 14 AND 21 THEN 'Teenagers'
+            WHEN age BETWEEN 22 AND 30 THEN 'Young Adults'
+            WHEN age BETWEEN 31 AND 60 THEN 'Adults'
+            ELSE 'Seniors'
+        END AS age_bracket,
+        COUNT(*) AS viewer_count
+    FROM BRIGHTTV
+    GROUP BY age_bracket
+),
+
+-- Most common race
+top_race AS (
+    SELECT 
+        race,
+        COUNT(*) AS viewer_count
+    FROM BRIGHTTV
+    GROUP BY race
+    ORDER BY viewer_count DESC
+    
+),
+
+-- Gender and age bracket breakdown
+gender_age_distribution AS (
+    SELECT 
+        GENDER,
+        CASE 
+            WHEN AGE BETWEEN 1 AND 13 THEN 'Kids'
+            WHEN AGE BETWEEN 14 AND 21 THEN 'Teenagers'
+            WHEN AGE BETWEEN 22 AND 30 THEN 'Young Adults'
+            WHEN AGE BETWEEN 31 AND 60 THEN 'Adults'
+            ELSE 'Seniors'
+        END AS age_bracket,
+        COUNT(*) AS viewer_count
+    FROM BRIGHTTV
+    WHERE GENDER IN ('male', 'female') AND AGE IS NOT NULL
+    GROUP BY GENDER, age_bracket
+)
+
